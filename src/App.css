@@ -1,17 +1,261 @@
-.App {
-  text-align: center;
-}
+
+
 
 .App-header {
-  min-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  color: var(--black--color);
 }
 
-.App-link {
-  color: #61dafb;
+.topnav{
+  font-size: 30px;
+  background-color: #192A51;
+  color: white;
 }
 
+textarea{
+  width: 400px;
+  height: 150px;
+  text-align: center;
+  border-radius: 5px;
+  padding: 15px;
+  border: 1px solid var(--black--color);
+}
+
+hr{
+  width: 70%;
+}
+
+input{
+  border-radius: 5px;
+  height: 30px;
+  padding: 3px 0px;
+  text-align: center;
+  font-size: 19px;
+  border: 1px solid var(--black--color);
+}
+
+small{
+  color: red;
+  font-size: 15px;
+}
+
+.animate{
+  /* animation: text 2s infinite; */
+  color: #020887;
+  text-transform: capitalize;
+}
+
+.error{
+  border: 1px solid red;
+}
+
+.timeout-img{
+  width: 100px;
+}
+
+.timeout{
+  font-size: 60px;
+  animation: text 2s infinite;
+}
+
+.guess{
+  position: fixed;
+  left: 40%;
+  font-size: 22px;
+  font-weight: 600;
+}
+@keyframes text {
+  0%{
+      color: #a9dbb8;
+      /* transform: translateX(1px) */
+  }
+  33%{
+      color: #7ca5b8;
+  }
+  66%{
+      color: #38369a;
+  }
+  100%{
+      color: #020887;
+  }
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+:root {
+  --dark-yellow--color: rgb(158, 149, 14);
+  --light-yellow-color: rgb(238, 228, 91);
+  --white--color: #fff;
+  --black--color: #222;
+  --red-color: rgb(255, 11, 60);
+  --green-clor: rgb(17, 92, 2);
+}
+
+/* utility class  */
+* {
+  outline: none;
+  border: none;
+}
+h1 {
+  font-size: 2rem;
+}
+button {
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 1rem;
+  color: var(--green-clor);
+  background-color: var(--dark-yellow--color);
+  font-weight: 600;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: ease 0.5s;
+  margin-right: 10px;
+}
+
+button:hover{
+  background-color: antiquewhite;
+  color: #282c34;
+}
+
+/* App styling */
+
+.App {
+  width: 90%;
+  margin: 0 auto;
+  text-align: center;
+  margin-top: 2rem;
+  font-family: "Poppins", sans-serif;
+  /* background-color: r; */
+}
+
+.Attacher__board,
+.Depolyer__Board {
+  display: flex;
+  height: 60vh;
+  width: 80vw;
+  background-color: var(--green-clor);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  margin-top: 20px;
+}
+
+.hide {
+  display: none;
+}
+.show {
+  display: flex;
+  flex-direction: column;
+}
+/* Intro Styling */
+.Intro {
+  height: 100vh;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  transition: 0.5s ease-in;
+}
+.Intro__Dealer:hover,
+.Intro__Attacher:hover {
+  color: var(--dark-yellow--color);
+  background-color: #fff;
+  border: 3px dashed var(--green-clor);
+}
+.Intro__Btn {
+  display: flex;
+}
+.Intro__sub {
+  color: var(--red-color);
+}
+.Intro__span {
+  color: var(--green-clor);
+}
+/* Board Styling */
+.Board {
+  border: 3px solid #fff;
+  width: 50%;
+}
+.Board__player {
+  color: var(--dark-yellow--color);
+  font-weight: 500;
+  letter-spacing: 2px;
+  margin: 10px 0;
+}
+
+.Button {
+  margin-top: 20px;
+}
+
+.Button__type:hover {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+}
+.Button__hit {
+  background-color: var(--light-yellow-color);
+  color: var(--black--color);
+  flex: 1;
+}
+.Button__stand {
+  background-color: var(--red-color);
+  color: var(--white--color);
+  flex: 1;
+}
+
+.Button__deal {
+  background-color: var(--red-color);
+}
+
+.Board__card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.span__red {
+  color: var(--red-color);
+}
+.span__white {
+  color: var(--white--color);
+}
+.State__text {
+  color: var(--black--color);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.Card {
+  height: 100px;
+  overflow: hidden;
+  margin: 10px;
+  background-color: #fff;
+  border-radius: 5px;
+}
+
+.Card img {
+  height: 100%;
+  object-fit: cover;
+}
+
+.Deployer {
+  display: flex;
+  flex-direction: column;
+}
+
+.App__board {
+  position: relative;
+}
+
+.DepOrAtt,
+.set_wager {
+  margin-top: 10rem;
+}
+.set_wager_btn {
+  margin-left: 10px;
+}
+
+.Deployer__btn {
+  display: flex;
+  width: 100%;
+  margin-top: 20px;
+}

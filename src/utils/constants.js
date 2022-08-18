@@ -8,6 +8,7 @@ export const views = {
   
   //Attacher
   PASTE_CONTRACT_INFO: 'Paste contract info',
+  ACCEPT_WAGER: 'Accept wager',
   ATTACHING: 'Attaching',
 
   //GENERIC

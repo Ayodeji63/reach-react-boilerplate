@@ -1,0 +1,89 @@
+.loader-text {
+  text-transform: uppercase;
+  font-size: 35px;
+  font-weight: 900;
+  margin-top: 30%;
+  color: #020887;
+  /* animation: text 2s infinite; */
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+
+.overflow,
+.circle-line {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.overflow {
+  z-index: 9998;
+  width: 100vw;
+  height: 100vh;
+}
+
+.circle-line {
+  z-index: 9999;
+  width: 200px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.circle-red,
+.circle-green,
+.circle-yellow,
+.circle-blue {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 30px;
+  margin: 5px;
+}
+
+.circle-red {
+  background-color: #a9dbb8;
+  animation: movingUp 0.5s infinite alternate;
+}
+
+.circle-blue {
+  background-color: #7ca5b8;
+  animation: movingUp 0.5s 0.2s infinite alternate;
+}
+
+.circle-green {
+  background-color: #38369a;
+  animation: movingUp 0.5s 0.5s infinite alternate;
+}
+
+.circle-yellow {
+  background-color: #020887;
+  animation: movingUp 0.5s 0.7s infinite alternate;
+}
+
+/* CSS ANIMATION */
+
+@keyframes movingUp {
+  from {
+    top: 0px;
+  }
+
+  to {
+    top: -30px;
+  }
+}
+
+@keyframes text {
+  0% {
+    color: #a9dbb8;
+    /* transform: translateX(1px) */
+  }
+  33% {
+    color: #6fe682;
+  }
+  66% {
+    color: #399a36;
+  }
+  100% {
+    color: #028702;
+  }
+}
