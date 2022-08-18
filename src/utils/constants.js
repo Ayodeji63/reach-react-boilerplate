@@ -5,11 +5,13 @@ export const views = {
   //Deployer
   DEPLOYING: 'Deploying',
   WAIT_FOR_ATTACHER: 'Wait for attacher',
+  DEPLOYER_BOARD: "Deployer_board",
   
   //Attacher
   PASTE_CONTRACT_INFO: 'Paste contract info',
   ACCEPT_WAGER: 'Accept wager',
   ATTACHING: 'Attaching',
+  ATTACHER_BOARD: "Attacher_board",
 
   //GENERIC
   TIME_OUT: 'Timeout',

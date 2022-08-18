@@ -254,7 +254,8 @@ button:hover{
   margin-left: 10px;
 }
 
-.Deployer__btn {
+.Deployer__btn,
+.Attacher__btn {
   display: flex;
   width: 100%;
   margin-top: 20px;

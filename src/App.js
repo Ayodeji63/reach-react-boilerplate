@@ -22,6 +22,7 @@ import {
   DeployerView,
   AttacherView,
 } from './views/';
+import { Card } from './Components';
 
 const reach = loadStdlib('ALGO');
 reach.setWalletFallback(reach.walletFallback({ providerEnv: 'TestNet', MyAlgoConnect }));
@@ -35,6 +36,13 @@ function App() {
   const [resolver, setResolver] = useState();
   const [isDeployer, setIsDeployer] = useState(false)
   const [ wager, setWager ] = useState();
+  const [deployerCard, setDeployerCard] = useState("");
+  const [attacherCard, setAttacherCard] = useState([]);
+  const [deployerScore, setDeployerScore] = useState(0);
+  const [attacherScore, setattacherScore] = useState(0);
+  const [text, setText] = useState("let's Play");
+  const [isHit, setIsHit] = useState(false);
+  const [isDrop, setIsDrop] = useState(false);
 
   const helperFunctions = {
     connect: async (secret, mnemonic = false) => {
@@ -78,15 +86,79 @@ function App() {
 
   };
 
-  //Participant Objects
-  const Common = {
-    random: () => reach.hasRandom.random(),
+  let blackJackGame = {
+    deployer: {
+      cards: deployerCard,
+      score: deployerScore,
+    },
+    attacher: {
+      cards: attacherCard,
+      score: attacherScore,
+    },
+    cards: ["2", "3", "4", "5", "6", "7", "8", "9", "10", "K", "Q", "J", "A"],
+    cardsMap: {
+      2: 2,
+      3: 3,
+      4: 4,
+      5: 5,
+      6: 6,
+      7: 7,
+      8: 8,
+      9: 9,
+      10: 10,
+      K: 10,
+      J: 10,
+      Q: 10,
+      A: [1, 11],
+    },
+  };
 
-    board: () => setView(views.TEST_VIEW)
+  const randomCards = () => {
+    // let randomIndex = Math.floor(Math.random() * 13);
+    let randomCard = blackJackGame["cards"][Math.floor(Math.random() * 12)];
+    let cardValue = blackJackGame.cardsMap[randomCard];
+    return randomCard;
+  };
+
+   //Update Score
+  function updateScore(card, initialScore, activeScore) {
+    if (card === "A") {
+      if (initialScore + blackJackGame["cardsMap"][card][1] > 21) {
+        activeScore(
+          (prevScore) => prevScore + blackJackGame["cardsMap"][card][0]
+        );
+      } else if (initialScore + blackJackGame["cardsMap"][card][1] <= 21) {
+        activeScore(
+          (prevScore) => prevScore + blackJackGame["cardsMap"][card][1]
+        );
+      }
+    } else {
+      activeScore((prevScore) => prevScore + blackJackGame["cardsMap"][card]);
+    }
   }
 
+
+  //Participant Objects
+  const Common = (who) => ({
+    random: () => reach.hasRandom.random(),
+    starterCards: () => {
+      let card = randomCards();
+      if (who === "Deployer") {
+        setDeployerCard((prevCard) => [...prevCard, <Card card={card} />]);
+        updateScore(card, deployerScore, setDeployerScore);
+      } else {
+        setAttacherCard((prevCard) => [...prevCard, <Card card={card} />]);
+        updateScore(card, attacherScore, setattacherScore);
+      }
+    },
+    dealCards: () => {
+
+    },
+    board: () => setView(views.TEST_VIEW)
+  })
+
   const Deployer = {
-    ...Common,
+    ...Common('Deployer'),
     wager: 0,
 
     deadline: 0,
@@ -99,10 +171,11 @@ function App() {
     waitingForAttacher: () => {
       setView(views.WAIT_FOR_ATTACHER);
     },
+    deployerBoard: () => setView(views.DEPLOYER_BOARD)
   }
 
   const Attacher = {
-    ...Common,
+    ...Common('Attacher'),
     acceptWager: async (wager) => {
       setView(views.ACCEPT_WAGER);
       setWager(reach.formatCurrency(wager, 4));
@@ -114,7 +187,8 @@ function App() {
           },
         })
       });
-    }
+    },
+    attacherBoard: () => setView(views.ATTACHER_BOARD)
   }
 
   return (
@@ -168,14 +242,21 @@ function App() {
           decline={() => setView(views.DEPLOY_OR_ATTACH)} />
         }
 
-
-
         {
-          view === views.TEST_VIEW &&
+          view === views.DEPLOYER_BOARD &&
           <DeployerView
           // blackJackGame={blackJackGame}
           // deployerCard={deployerCard}
-          // deployHit={deployHit}
+          deployHit={Deployer.starterCards}
+          // drop={drop}
+        /> 
+        }
+         {
+          view === views.ATTACHER_BOARD &&
+          <AttacherView
+          // blackJackGame={blackJackGame}
+          // deployerCard={deployerCard}
+          deployHit={Attacher.starterCards}
           // drop={drop}
         /> 
         }
