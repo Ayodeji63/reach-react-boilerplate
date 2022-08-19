@@ -16,7 +16,6 @@ const common = {
   ...hasRandom,
   board: Fun([], Null),
   dealCards: Fun([], Tuple(UInt, Bytes(8))),
-  starterCards: Fun([], Null),
   informTimeout: Fun([], Null),
   seeOutcome: Fun([UInt], Null),
   viewOpponentCards: Fun([Bytes(8)], Null),
@@ -28,12 +27,12 @@ export const main = Reach.App(() => {
     deadline: UInt,
     waitingForAttacher: Fun([], Null),
     deployerBoard: Fun([], Null),
-    revealCards: Fun([], Bytes(8)),
   });
   const Attacher = Participant('Attacher', {
     ...common,
     acceptWager: Fun([UInt], Null),
-    attacherBoard: Fun([], Null)
+    attacherBoard: Fun([], Null),
+    stand: Fun([], Null),
   });
 
   init();
@@ -67,27 +66,27 @@ export const main = Reach.App(() => {
   Attacher.interact.attacherBoard();
   Deployer.interact.deployerBoard();
 
-  Attacher.interact.starterCards();
-  Deployer.interact.starterCards();
-
   commit();
 
   Deployer.only(() => {
     const [_DeployerCardsTotal, _DeployerCardsVisible] = interact.dealCards();
-    const DeployerCardsVisible = declassify(_DeployerCardsVisible);
     const [_DeployerCommit, _DeployerSalt] = makeCommitment(
       interact,
-      _DeployerCardsTotal
+      _DeployerCardsVisible
     );
+    const DeployerCommit = declassify(_DeployerCommit)
   });
 
-  Deployer.publish(DeployerCardsVisible);
+  Deployer.publish(DeployerCommit).timeout(
+    relativeTime(deadline),
+    () => closeTo(Attacher, informTimeout)
+  );
+  
+  Attacher.interact.stand();
   
   commit();
-  Attacher.interact.viewOpponentCards(DeployerCardsVisible);
 
   Attacher.only(() => {
-   
     const [AttacherCardsTotal, AttacherCardsVisible] = declassify(interact.dealCards());
   });
 
@@ -96,20 +95,28 @@ export const main = Reach.App(() => {
     () => closeTo(Deployer, informTimeout)
   );
 
+  Deployer.only(() => {
+    const DeployerSalt = declassify(_DeployerSalt);
+    const DeployerVisibleCard = declassify(_DeployerCardsVisible)
+  });
+
+  commit();
+
+  Deployer.publish(DeployerSalt, DeployerVisibleCard);
+
+  checkCommitment(DeployerCommit, DeployerSalt, DeployerVisibleCard)
+
+  Attacher.interact.viewOpponentCards(DeployerVisibleCard);
+
   commit();
 
   Deployer.only(() => {
     const DeployerCardsTotal = declassify(_DeployerCardsTotal);
     interact.viewOpponentCards(AttacherCardsVisible);
-    const DeployerFinalCards = declassify(interact.revealCards());
   });
 
-  Deployer.publish(DeployerCardsTotal, DeployerFinalCards).timeout(
-    relativeTime(deadline),
-    () => closeTo(Attacher, informTimeout)
-  );
 
-  Attacher.interact.viewOpponentCards(DeployerFinalCards);
+  Deployer.publish(DeployerCardsTotal);
 
   const outcome = winner(AttacherCardsTotal, DeployerCardsTotal);
 

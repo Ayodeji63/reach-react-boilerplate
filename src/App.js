@@ -36,13 +36,14 @@ function App() {
   const [resolver, setResolver] = useState();
   const [isDeployer, setIsDeployer] = useState(false)
   const [ wager, setWager ] = useState();
-  const [deployerCard, setDeployerCard] = useState("");
+  const [deployerCard, setDeployerCard] = useState([]);
   const [attacherCard, setAttacherCard] = useState([]);
+  const [opponentCard, setOpponentCard] = useState([])
   const [deployerScore, setDeployerScore] = useState(0);
-  const [attacherScore, setattacherScore] = useState(0);
-  const [text, setText] = useState("let's Play");
+  const [attacherScore, setAttacherScore] = useState(0);
+  const [text, setText] = useState('You will be given two cards')
   const [isHit, setIsHit] = useState(false);
-  const [isDrop, setIsDrop] = useState(false);
+  const [stand, setStand] = useState(false)
 
   const helperFunctions = {
     connect: async (secret, mnemonic = false) => {
@@ -121,40 +122,39 @@ function App() {
   };
 
    //Update Score
-  function updateScore(card, initialScore, activeScore) {
-    if (card === "A") {
-      if (initialScore + blackJackGame["cardsMap"][card][1] > 21) {
-        activeScore(
-          (prevScore) => prevScore + blackJackGame["cardsMap"][card][0]
-        );
-      } else if (initialScore + blackJackGame["cardsMap"][card][1] <= 21) {
-        activeScore(
-          (prevScore) => prevScore + blackJackGame["cardsMap"][card][1]
-        );
-      }
-    } else {
-      activeScore((prevScore) => prevScore + blackJackGame["cardsMap"][card]);
-    }
-  }
 
+ 
+const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
 
   //Participant Objects
   const Common = (who) => ({
     random: () => reach.hasRandom.random(),
-    starterCards: () => {
-      let card = randomCards();
-      if (who === "Deployer") {
-        setDeployerCard((prevCard) => [...prevCard, <Card card={card} />]);
-        updateScore(card, deployerScore, setDeployerScore);
-      } else {
-        setAttacherCard((prevCard) => [...prevCard, <Card card={card} />]);
-        updateScore(card, attacherScore, setattacherScore);
+    starterCards: () => { 
+    },
+
+    dealCards: async () => {
+      return await new Promise((resolve) => {
+        setResolver({
+          resolve
+        })
+      })
+    },
+
+    viewOpponentCards:(opponentCard) => {
+      let viewCard = [...opponentCard]
+     let setCard =  viewCard.filter(String);
+      console.log(`This are opponent Cards ${setCard}`);
+      for (let i = 0; i < viewCard.length; i++) {
+       if (viewCard[i] !== ",") {
+        const card = viewCard[i];
+        setOpponentCard(preCards => [...preCards, <Card card={card}/>])
+       }
       }
     },
-    dealCards: () => {
 
-    },
-    board: () => setView(views.TEST_VIEW)
+    seeOutcome: (outcome) => {
+      setText(OUTCOME[outcome])
+    }
   })
 
   const Deployer = {
@@ -188,7 +188,11 @@ function App() {
         })
       });
     },
-    attacherBoard: () => setView(views.ATTACHER_BOARD)
+    attacherBoard: () => setView(views.ATTACHER_BOARD),
+    stand: () => {
+      console.log('click again');
+      setStand(true)
+    }
   }
 
   return (
@@ -245,18 +249,33 @@ function App() {
         {
           view === views.DEPLOYER_BOARD &&
           <DeployerView
-          // blackJackGame={blackJackGame}
-          // deployerCard={deployerCard}
-          deployHit={Deployer.starterCards}
+          blackJackGame={blackJackGame}
+          randomCards = {randomCards}
+          submitCards = {resolver.resolve}
+          deployerCard = {deployerCard}
+          deployerScore = {deployerScore}
+          setDeployerScore = {setDeployerScore}
+          setDeployerCard = {setDeployerCard}
+          opponentCard = {opponentCard}
+          text = {text}
+          setText = {setText}
           // drop={drop}
         /> 
         }
          {
           view === views.ATTACHER_BOARD &&
           <AttacherView
-          // blackJackGame={blackJackGame}
-          // deployerCard={deployerCard}
-          deployHit={Attacher.starterCards}
+          blackJackGame={blackJackGame}
+           randomCards = {randomCards}
+          submitCards = {resolver.resolve}
+          attacherCard = {attacherCard}
+          setAttacherCard = {setAttacherCard}
+          attacherScore = {attacherScore}
+          setAttacherScore = {setAttacherScore}
+          opponentCard = {opponentCard}
+          text = {text}
+          setText = {setText}
+          deploy = {stand}
           // drop={drop}
         /> 
         }

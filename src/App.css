@@ -178,12 +178,13 @@ button:hover{
   width: 50%;
 }
 .Board__player {
-  color: var(--dark-yellow--color);
   font-weight: 500;
   letter-spacing: 2px;
   margin: 10px 0;
 }
-
+ .Board__player .player {
+  color: #fff;
+ }
 .Button {
   margin-top: 20px;
 }
@@ -215,8 +216,8 @@ button:hover{
 .span__red {
   color: var(--red-color);
 }
-.span__white {
-  color: var(--white--color);
+.span__yellow {
+  color: var(--light-yellow-color);
 }
 .State__text {
   color: var(--black--color);

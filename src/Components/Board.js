@@ -4,8 +4,8 @@ export function Board({ player, card, score }) {
   return (
     <div className="Board">
       <h1 className="Board__player">
-        {player}:{" "}
-        <span className={score == "Burst!" ? "span__red" : "span__white"}>
+        <span className="player">{player}: </span>
+        <span className={score > 21 ? "span__red" : "span__yellow"}>
           {score}
         </span>
       </h1>
