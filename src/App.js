@@ -192,6 +192,7 @@ const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
     stand: () => {
       console.log('click again');
       setStand(true)
+      setView(views.ATTACHER_BOARD)
     }
   }
 

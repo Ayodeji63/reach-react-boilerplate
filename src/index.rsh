@@ -15,7 +15,7 @@ const winner = (bobTotal, aliceTotal) => {
 const common = {
   ...hasRandom,
   board: Fun([], Null),
-  dealCards: Fun([], Tuple(UInt, Bytes(8))),
+  dealCards: Fun([Bool], Tuple(UInt, Bytes(8))),
   informTimeout: Fun([], Null),
   seeOutcome: Fun([UInt], Null),
   viewOpponentCards: Fun([Bytes(8)], Null),
@@ -69,7 +69,7 @@ export const main = Reach.App(() => {
   commit();
 
   Deployer.only(() => {
-    const [_DeployerCardsTotal, _DeployerCardsVisible] = interact.dealCards();
+    const [_DeployerCardsTotal, _DeployerCardsVisible] = interact.dealCards(true);
     const [_DeployerCommit, _DeployerSalt] = makeCommitment(
       interact,
       _DeployerCardsVisible
@@ -82,18 +82,20 @@ export const main = Reach.App(() => {
     () => closeTo(Attacher, informTimeout)
   );
   
-  Attacher.interact.stand();
-  
+ 
+
   commit();
 
   Attacher.only(() => {
-    const [AttacherCardsTotal, AttacherCardsVisible] = declassify(interact.dealCards());
+    const [AttacherCardsTotal, AttacherCardsVisible] = declassify(interact.dealCards(true));
   });
 
   Attacher.publish(AttacherCardsTotal, AttacherCardsVisible).timeout(
     relativeTime(deadline),
     () => closeTo(Deployer, informTimeout)
   );
+
+  Attacher.interact.stand();
 
   Deployer.only(() => {
     const DeployerSalt = declassify(_DeployerSalt);

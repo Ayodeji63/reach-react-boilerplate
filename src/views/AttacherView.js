@@ -66,11 +66,11 @@ export function AttacherView({ blackJackGame, randomCards, submitCards, attacher
 
     const stand = () => {
         setText('Waiting for opponent...')
-        if (deploy) {
+        // if (deploy) {
         setIsHit(false)
         let cardString = card.map((index) => index).join('');
         submitCards([attacherScore, cardString]) 
-        }
+        // }
          
     }
 
