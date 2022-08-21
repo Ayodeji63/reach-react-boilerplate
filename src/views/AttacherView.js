@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Board, Button, Card, State } from "../Components";
 
-export function AttacherView({ blackJackGame, randomCards, submitCards, attacherCard, setAttacherCard, attacherScore, setAttacherScore, opponentCard, text, setText, deploy}) {
+export function AttacherView({ blackJackGame, randomCards, submitCards, attacherCard, setAttacherCard, attacherScore, setAttacherScore, opponentCard, text, setText, deploy, opponentScore}) {
   
   const [card, setCard] = useState([]);
   const [isHit, setIsHit] = useState(false)
@@ -66,11 +66,13 @@ export function AttacherView({ blackJackGame, randomCards, submitCards, attacher
 
     const stand = () => {
         setText('Waiting for opponent...')
-        // if (deploy) {
+        setIsHit(false)
+        if (deploy) {
+          setText('Collecting Deployer Info...')
         setIsHit(false)
         let cardString = card.map((index) => index).join('');
         submitCards([attacherScore, cardString]) 
-        // }
+        }
          
     }
 
@@ -78,12 +80,12 @@ export function AttacherView({ blackJackGame, randomCards, submitCards, attacher
   return (
     <div className="Attacher">
        <State 
-         text= {deploy == true ? 'Click the stand button again' : text}
+         text= {text}
          />
       <div className="Attacher__board">
         
         <Board
-          player="Attacher"
+          player="You"
           class="Attacher__class"
           card={attacherCard}
           score={attacherScore}
@@ -92,7 +94,7 @@ export function AttacherView({ blackJackGame, randomCards, submitCards, attacher
           player="Deployer"
           class="Dealer__Class"
           card={opponentCard}
-          // score = {blackJackGame['deployer']['scorespan']}
+          score = {opponentScore}
         />
       </div>
       <div className="Attacher__btn">

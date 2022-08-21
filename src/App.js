@@ -3,7 +3,8 @@ import { loadStdlib } from '@reach-sh/stdlib';
 import { ALGO_MyAlgoConnect as MyAlgoConnect } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs'
 import { useState } from 'react';
-import { views, Loader } from './utils/';
+import { Loader } from './utils/';
+import { views, GameOutcome} from "./utils/constants.js";
 import { ConnectAccount, PasteContractInfo, SelectRole, TestView, WaitForAttacher } from './screens';
 import { Header } from "./Components/Header"
 // import { SetWager } from './views';
@@ -23,6 +24,7 @@ import {
   AttacherView,
 } from './views/';
 import { Card } from './Components';
+import { GameOutcomeView } from './views/GameOutcome';
 
 const reach = loadStdlib('ALGO');
 reach.setWalletFallback(reach.walletFallback({ providerEnv: 'TestNet', MyAlgoConnect }));
@@ -42,8 +44,10 @@ function App() {
   const [deployerScore, setDeployerScore] = useState(0);
   const [attacherScore, setAttacherScore] = useState(0);
   const [text, setText] = useState('You will be given two cards')
-  const [isHit, setIsHit] = useState(false);
-  const [stand, setStand] = useState(false)
+  const [deploy, setDeploy] = useState(false)
+  const [opponentScore, setOpponentScore] = useState(0)
+  const [gameOutcome, setGameOutcome] = useState(GameOutcome.UNDECIDED);
+  const [outcome, setOutcome] = useState(false)
 
   const helperFunctions = {
     connect: async (secret, mnemonic = false) => {
@@ -85,6 +89,10 @@ function App() {
       backend.Attacher(contract, Attacher)
     },
 
+    playAgain : () => {
+     window.location.reload();
+    }
+
   };
 
   let blackJackGame = {
@@ -96,7 +104,7 @@ function App() {
       cards: attacherCard,
       score: attacherScore,
     },
-    cards: ["2", "3", "4", "5", "6", "7", "8", "9", "10", "K", "Q", "J", "A"],
+    cards: ["2", "3", "4", "5", "6", "7", "8", "9", "T", "K", "Q", "J", "A"],
     cardsMap: {
       2: 2,
       3: 3,
@@ -106,7 +114,7 @@ function App() {
       7: 7,
       8: 8,
       9: 9,
-      10: 10,
+      T: 10,
       K: 10,
       J: 10,
       Q: 10,
@@ -124,7 +132,8 @@ function App() {
    //Update Score
 
  
-const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
+
+
 
   //Participant Objects
   const Common = (who) => ({
@@ -140,21 +149,35 @@ const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
       })
     },
 
-    viewOpponentCards:(opponentCard) => {
-      let viewCard = [...opponentCard]
-     let setCard =  viewCard.filter(String);
-      console.log(`This are opponent Cards ${setCard}`);
-      for (let i = 0; i < viewCard.length; i++) {
-       if (viewCard[i] !== ",") {
-        const card = viewCard[i];
-        setOpponentCard(preCards => [...preCards, <Card card={card}/>])
-       }
-      }
+    viewOpponentCards:([Score, cards]) => {
+      let splittedCard = cards.split("");
+
+      splittedCard.forEach((char) => {
+        if (blackJackGame.cards.indexOf(char) > -1) {
+          setOpponentCard(preCards => [...preCards, <Card card={char}/>])
+        }
+        console.log(splittedCard);
+      })
     },
 
-    seeOutcome: (outcome) => {
-      setText(OUTCOME[outcome])
-    }
+    seeOutcome: async (value) => {
+      const outcome = parseInt(value);
+      console.log("The outcome is", outcome);
+
+      if (outcome === 0) {
+        setGameOutcome(isDeployer? GameOutcome.WINNER : GameOutcome.LOSS)
+      }
+      else if (outcome === 1) {
+        setGameOutcome(GameOutcome.DRAW)
+      }
+      else {
+        setGameOutcome(isDeployer? GameOutcome.LOSS : GameOutcome.WINNER)
+      }
+
+      // setView(views.SEE_WINNER);
+      setOutcome(true)
+    },
+
   })
 
   const Deployer = {
@@ -171,7 +194,12 @@ const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
     waitingForAttacher: () => {
       setView(views.WAIT_FOR_ATTACHER);
     },
-    deployerBoard: () => setView(views.DEPLOYER_BOARD)
+    deployerBoard: () => setView(views.DEPLOYER_BOARD),
+
+    stand: () => {
+      return true;
+    }
+  
   }
 
   const Attacher = {
@@ -188,12 +216,14 @@ const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
         })
       });
     },
+    deploy: (Bool) => {
+      if (Bool) {
+        setDeploy(true)
+        setText('Click the Stand button Again')
+      }
+    },
     attacherBoard: () => setView(views.ATTACHER_BOARD),
-    stand: () => {
-      console.log('click again');
-      setStand(true)
-      setView(views.ATTACHER_BOARD)
-    }
+ 
   }
 
   return (
@@ -249,6 +279,7 @@ const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
 
         {
           view === views.DEPLOYER_BOARD &&
+          <div className='Main_Board'>
           <DeployerView
           blackJackGame={blackJackGame}
           randomCards = {randomCards}
@@ -258,13 +289,19 @@ const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
           setDeployerScore = {setDeployerScore}
           setDeployerCard = {setDeployerCard}
           opponentCard = {opponentCard}
+          opponentScore = {opponentScore}
           text = {text}
           setText = {setText}
-          // drop={drop}
         /> 
+        {outcome && <GameOutcomeView 
+        outcome={gameOutcome}
+        playAgain = {helperFunctions.playAgain}
+        />}
+        </div>
         }
          {
           view === views.ATTACHER_BOARD &&
+          <div className='Main_Board'>
           <AttacherView
           blackJackGame={blackJackGame}
            randomCards = {randomCards}
@@ -276,9 +313,16 @@ const OUTCOME = ['Deployer Wins !!!', 'Draw', 'Attacher Wins !!!']
           opponentCard = {opponentCard}
           text = {text}
           setText = {setText}
-          deploy = {stand}
+          deploy= {deploy}
+          opponentScore = {opponentScore}
           // drop={drop}
         /> 
+        {outcome && 
+        <GameOutcomeView 
+        outcome={gameOutcome}
+        playAgain = {helperFunctions.playAgain}
+        />}
+        </div>
         }
       </header>
     </div>

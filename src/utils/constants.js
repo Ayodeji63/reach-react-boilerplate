@@ -1,4 +1,4 @@
-export const views = {
+ const views = {
   CONNECT_ACCOUNT: 'Connect account',
   DEPLOY_OR_ATTACH: 'Deploy or attach',
 
@@ -15,5 +15,15 @@ export const views = {
 
   //GENERIC
   TIME_OUT: 'Timeout',
-  TEST_VIEW: 'Test view'
+  TEST_VIEW: 'Test view',
+  SEE_WINNER: 'See Winner'
 }
+
+const GameOutcome = {
+  UNDECIDED: 'undecided',
+  WINNER: 'win',
+  DRAW: 'draw',
+  LOSS: 'loss',
+}
+
+export {views, GameOutcome}

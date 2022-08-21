@@ -9,16 +9,28 @@ const winner = (bobTotal, aliceTotal) => {
     if (bobTotal < 22 && (bobTotal > aliceTotal || aliceTotal > 21)) {
       return B_WINS;
     } else return DRAW;
-  }
+  } 
 };
+
+// const winner = (bobTotal, aliceTotal) => {
+//   if (bobTotal > 21 || (aliceTotal < 22 && aliceTotal > bobTotal)) {
+//     return A_WINS;
+//   } else if (bobTotal < 22 && (bobTotal > aliceTotal || aliceTotal > 21)) {
+//     return B_WINS;
+//   } else  if (bobTotal > 21 && aliceTotal > 21) {
+//     return DRAW;
+//   } else{
+//     return DRAW;
+//   }
+// }
 
 const common = {
   ...hasRandom,
   board: Fun([], Null),
-  dealCards: Fun([Bool], Tuple(UInt, Bytes(8))),
+  dealCards: Fun([], Tuple(UInt, Bytes(8))),
   informTimeout: Fun([], Null),
   seeOutcome: Fun([UInt], Null),
-  viewOpponentCards: Fun([Bytes(8)], Null),
+  viewOpponentCards: Fun([Tuple(UInt, Bytes(8))], Null),
 }
 export const main = Reach.App(() => {
   const Deployer =  Participant('Deployer', {
@@ -27,12 +39,15 @@ export const main = Reach.App(() => {
     deadline: UInt,
     waitingForAttacher: Fun([], Null),
     deployerBoard: Fun([], Null),
+    stand: Fun([], Bool),
   });
   const Attacher = Participant('Attacher', {
     ...common,
     acceptWager: Fun([UInt], Null),
     attacherBoard: Fun([], Null),
-    stand: Fun([], Null),
+    deploy: Fun([Bool], Null),
+    
+   
   });
 
   init();
@@ -69,25 +84,37 @@ export const main = Reach.App(() => {
   commit();
 
   Deployer.only(() => {
-    const [_DeployerCardsTotal, _DeployerCardsVisible] = interact.dealCards(true);
+    const [_DeployerCardsTotal, _DeployerCardsVisible] = interact.dealCards();
     const [_DeployerCommit, _DeployerSalt] = makeCommitment(
       interact,
       _DeployerCardsVisible
     );
+    const [_DeployerScore, _DeployerSaltScore] = makeCommitment(interact, _DeployerCardsTotal)
     const DeployerCommit = declassify(_DeployerCommit)
+    const DeployerScore = declassify(_DeployerScore)
   });
 
-  Deployer.publish(DeployerCommit).timeout(
+  Deployer.publish(DeployerCommit, DeployerScore).timeout(
     relativeTime(deadline),
     () => closeTo(Attacher, informTimeout)
   );
+
   
- 
+  commit();
+  
+  Deployer.only(() => {
+    const Stand = declassify(interact.stand());
+  })
+  Deployer.publish(Stand);
+
 
   commit();
 
+  Attacher.interact.deploy(Stand);
+
   Attacher.only(() => {
-    const [AttacherCardsTotal, AttacherCardsVisible] = declassify(interact.dealCards(true));
+    const [AttacherCardsTotal, AttacherCardsVisible] = declassify(interact.dealCards());
+   
   });
 
   Attacher.publish(AttacherCardsTotal, AttacherCardsVisible).timeout(
@@ -95,26 +122,28 @@ export const main = Reach.App(() => {
     () => closeTo(Deployer, informTimeout)
   );
 
-  Attacher.interact.stand();
-
+  
   Deployer.only(() => {
     const DeployerSalt = declassify(_DeployerSalt);
     const DeployerVisibleCard = declassify(_DeployerCardsVisible)
+    const DeployerSaltScore = declassify(_DeployerSaltScore);
+    const DeployerVisibleScore = declassify(_DeployerCardsTotal)
   });
 
   commit();
 
-  Deployer.publish(DeployerSalt, DeployerVisibleCard);
+  Deployer.publish(DeployerSalt, DeployerVisibleCard, DeployerSaltScore, DeployerVisibleScore);
 
   checkCommitment(DeployerCommit, DeployerSalt, DeployerVisibleCard)
+  checkCommitment(DeployerScore, DeployerSaltScore, DeployerVisibleScore)
 
-  Attacher.interact.viewOpponentCards(DeployerVisibleCard);
+  Attacher.interact.viewOpponentCards([DeployerSaltScore, DeployerVisibleCard]);
 
   commit();
 
   Deployer.only(() => {
     const DeployerCardsTotal = declassify(_DeployerCardsTotal);
-    interact.viewOpponentCards(AttacherCardsVisible);
+    interact.viewOpponentCards([AttacherCardsTotal, AttacherCardsVisible]);
   });
 
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { memo } from "react";
 import { Board, Button, Card, State } from "../Components";
+import { GameOutcomeView } from "./GameOutcome";
 
 
-export function DeployerView({blackJackGame,  randomCards, submitCards, updateScore, deployerScore, setDeployerScore, deployerCard, setDeployerCard, opponentCard, text, setText }) {
+export function DeployerView({blackJackGame,  randomCards, submitCards, updateScore, deployerScore, setDeployerScore, deployerCard, setDeployerCard, opponentCard, text, setText, opponentScore}) {
 
   const [card, setCard] = useState([]);
   const [isHit, setIsHit] = useState(false)
@@ -64,10 +65,9 @@ export function DeployerView({blackJackGame,  randomCards, submitCards, updateSc
   }
 
   const stand = () => {
-    
       setText('Waiting for opponent...')
       setIsHit(false)
-      let cardString = card.map((index) => index).join(',');
+      let cardString = card.map((index) => index).join('');
       console.log(cardString);
       submitCards([deployerScore, cardString])
   }
@@ -81,7 +81,7 @@ export function DeployerView({blackJackGame,  randomCards, submitCards, updateSc
          />
       <div className="Depolyer__Board">
         <Board
-          player="Deployer"
+          player="You"
           class="Dealer__Class"
           card={deployerCard}
           score={deployerScore}
@@ -90,7 +90,7 @@ export function DeployerView({blackJackGame,  randomCards, submitCards, updateSc
           player="Attacher"
           class="Attacher__class"
           card = {opponentCard}
-          // score = {blackJackGame['attacher']['scorespan']}
+          score = {opponentScore}
         />
       </div>
       <div className="Deployer__btn">
